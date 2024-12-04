@@ -84,7 +84,6 @@ describe('screenreader and keyboard user accessibility features', function () {
   it('should skip to the main content element', async function () {
     await libraryPage.get();
     await browser.keys('s');
-
     var mainContent = $('.e2e-test-main-content');
     expect(await mainContent.isFocused()).toEqual(true);
   });
