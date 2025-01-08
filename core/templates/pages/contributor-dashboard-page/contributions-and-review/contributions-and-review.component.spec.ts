@@ -1485,6 +1485,77 @@ describe('Contributions and review component', () => {
           expect(more).toEqual(false);
         });
       });
+
+      it('should not overwrite previously fetched data', fakeAsync(() => {
+        const mockSuggestions: Record<
+          string,
+          {suggestion: Suggestion; details: ContributionDetails}
+        > = {};
+        for (let i = 1; i <= 12; i++) {
+          mockSuggestions[`suggestion_${i}`] = {
+            suggestion: {
+              change_cmd: {
+                skill_id: 'string',
+                content_html: 'string',
+                translation_html: 'html',
+                question_dict: {
+                  question_state_data: {
+                    content: {
+                      html: 'html',
+                    },
+                  },
+                },
+                skill_difficulty: ['Medium'],
+              },
+              target_id: 'string;,',
+              suggestion_id: 'suggestion_id',
+              author_name: 'string;',
+              status: 'review',
+              suggestion_type: 'string',
+              exploration_content_html: 'html',
+            },
+            details: {
+              skill_description: 'skill_description',
+              topic_name: 'topic_name',
+              story_title: 'story_title',
+              chapter_title: 'chapter_title',
+              skill_rubrics: [],
+            },
+          };
+        }
+
+        getReviewableQuestionSuggestionsAsyncSpy.and.returnValues(
+          Promise.resolve({
+            suggestionIdToDetails: Object.fromEntries(
+              Object.entries(mockSuggestions).slice(0, 10) // First 10 suggestions.
+            ),
+            more: true,
+          }),
+          Promise.resolve({
+            suggestionIdToDetails: Object.fromEntries(
+              Object.entries(mockSuggestions).slice(10, 12) // Remaining 2 suggestions.
+            ),
+            more: false,
+          })
+        );
+
+        component.switchToTab(component.TAB_TYPE_REVIEWS, 'add_question');
+
+        // First call to loadContributions, should get 10 questions and "more" flag true.
+        component.loadContributions(true).then(({opportunitiesDicts, more}) => {
+          expect(Object.keys(component.contributions).length).toBe(10); // 10 is used because 10 question suggestions will be shown per page.
+          expect(opportunitiesDicts.length).toBe(10);
+          expect(more).toBe(true);
+
+          component
+            .loadContributions(false)
+            .then(({opportunitiesDicts, more}) => {
+              expect(Object.keys(component.contributions).length).toBe(12);
+              expect(opportunitiesDicts.length).toBe(2);
+              expect(more).toBe(false);
+            });
+        });
+      }));
     });
 
     it('should load reviewable translation opportunities correctly', () => {
