@@ -219,7 +219,7 @@ export class FractionInputValidationService {
             var f = toFloat.call(this, rule.inputs.f as FractionAnswer);
             setLowerAndUpperBounds(range, f, f, true, true);
             break;
-          case 'IsEquivalentTo': // fall-through.
+          case 'IsEquivalentTo':
             if (shouldBeInSimplestForm) {
               var fractionDict = rule.inputs.f as FractionAnswer;
               var fractionInSimplestForm =
@@ -237,7 +237,7 @@ export class FractionInputValidationService {
                 });
               }
             }
-          // fall-through.
+          // Intentional fall through.
           case 'IsEquivalentToAndInSimplestForm':
             if (shouldBeInSimplestForm) {
               var fractionDict = rule.inputs.f as FractionAnswer;
