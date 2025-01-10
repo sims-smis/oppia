@@ -237,6 +237,7 @@ export class FractionInputValidationService {
                 });
               }
             }
+          // fall-through.
           case 'IsEquivalentToAndInSimplestForm':
             if (shouldBeInSimplestForm) {
               var fractionDict = rule.inputs.f as FractionAnswer;
