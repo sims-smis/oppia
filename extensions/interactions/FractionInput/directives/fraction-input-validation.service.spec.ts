@@ -90,7 +90,7 @@ describe('FractionInputValidationService', () => {
 
     customizationArgs = {
       requireSimplestForm: {
-        value: true,
+        value: false,
       },
       allowImproperFraction: {
         value: true,
@@ -448,6 +448,7 @@ describe('FractionInputValidationService', () => {
   });
 
   it('should catch redundant rules caused by exactly equals', () => {
+    customizationArgs.requireSimplestForm.value = true;
     answerGroups[0].rules = [exactlyEqualToOneAndNotInSimplestFormRule];
     var warnings = validatorService.getAllWarnings(
       currentState,
