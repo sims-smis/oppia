@@ -100,7 +100,7 @@ export class QuestionValidationService {
   }
 
   // Returns 'null' when the message is valid.
-  getInteractionValidationErrorMessage(question: Question): string {
+  getInteractionValidationErrorMessage(question: Question): string | null {
     const interaction = question.getStateData().interaction;
     const interactionId = interaction.id as InteractionSpecsKey;
     let validatorServiceName = interactionId + 'ValidationService';
