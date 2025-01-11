@@ -168,12 +168,12 @@ describe('Skills List Component', () => {
           result: {
             then: (
               successCallback: (skillsToAssign: string[]) => void,
-              cancelCallback: () => void
+              cancelCallback: (skillsToAssign: string[]) => void
             ) => {
               if (this.success) {
                 successCallback(['test_id', 'b', 'c']);
               } else {
-                cancelCallback();
+                cancelCallback(['test_id', 'b', 'c']);
               }
             },
           },
@@ -461,7 +461,8 @@ describe('Skills List Component', () => {
         1,
         1,
         [5, 4],
-        [3, 4]
+        [3, 4],
+        true
       ),
     ];
     spyOn(
