@@ -272,7 +272,8 @@ export class FractionInputValidationService {
                     (j + 1) +
                     ' from Oppia response ' +
                     (i + 1) +
-                    ' should be in simplest form. ',
+                    ' will never be matched because it is not ' +
+                    'in simplest form.',
                 });
               }
             }
@@ -292,7 +293,8 @@ export class FractionInputValidationService {
                     (j + 1) +
                     ' from Oppia response ' +
                     (i + 1) +
-                    ' should be in simplest form. ',
+                    ' will never be matched because it is not ' +
+                    'in simplest form.',
                 });
               }
             }
