@@ -27,6 +27,7 @@ import {
 import {EventEmitter, NO_ERRORS_SCHEMA} from '@angular/core';
 import {ExplorationOpportunitySummary} from 'domain/opportunity/exploration-opportunity-summary.model';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import {AppConstants} from 'app.constants';
 import {
   ContributionDetails,
   ContributionsAndReview,
@@ -1491,7 +1492,9 @@ describe('Contributions and review component', () => {
           string,
           {suggestion: Suggestion; details: ContributionDetails}
         > = {};
-        for (let i = 1; i <= 12; i++) {
+        const totalOpportunitiesToBeFetched =
+          AppConstants.OPPORTUNITIES_PAGE_SIZE + 2;
+        for (let i = 1; i <= totalOpportunitiesToBeFetched; i++) {
           mockSuggestions[`suggestion_${i}`] = {
             suggestion: {
               change_cmd: {
@@ -1527,13 +1530,19 @@ describe('Contributions and review component', () => {
         getReviewableQuestionSuggestionsAsyncSpy.and.returnValues(
           Promise.resolve({
             suggestionIdToDetails: Object.fromEntries(
-              Object.entries(mockSuggestions).slice(0, 10) // First 10 suggestions.
+              Object.entries(mockSuggestions).slice(
+                0,
+                AppConstants.OPPORTUNITIES_PAGE_SIZE
+              ) // First AppConstants.OPPORTUNITIES_PAGE_SIZE suggestions.
             ),
             more: true,
           }),
           Promise.resolve({
             suggestionIdToDetails: Object.fromEntries(
-              Object.entries(mockSuggestions).slice(10, 12) // Remaining 2 suggestions.
+              Object.entries(mockSuggestions).slice(
+                AppConstants.OPPORTUNITIES_PAGE_SIZE,
+                totalOpportunitiesToBeFetched
+              ) // Remaining suggestions.
             ),
             more: false,
           })
@@ -1541,17 +1550,33 @@ describe('Contributions and review component', () => {
 
         component.switchToTab(component.TAB_TYPE_REVIEWS, 'add_question');
 
-        // First call to loadContributions, should get 10 questions and "more" flag true.
+        // First call to loadContributions, should get AppConstants.OPPORTUNITIES_PAGE_SIZE questions and "more" flag true.
         component.loadContributions(true).then(({opportunitiesDicts, more}) => {
-          expect(Object.keys(component.contributions).length).toBe(10); // 10 is used because 10 question suggestions will be shown per page.
-          expect(opportunitiesDicts.length).toBe(10);
+          const availableQuestionSuggestions = Object.keys(
+            component.contributions
+          ).length;
+          const expectedQuestionSuggestions =
+            AppConstants.OPPORTUNITIES_PAGE_SIZE;
+          const fetchedQuestionSuggestions = opportunitiesDicts.length;
+          expect(availableQuestionSuggestions).toBe(
+            expectedQuestionSuggestions
+          );
+          expect(fetchedQuestionSuggestions).toBe(expectedQuestionSuggestions);
           expect(more).toBe(true);
 
           component
             .loadContributions(false)
             .then(({opportunitiesDicts, more}) => {
-              expect(Object.keys(component.contributions).length).toBe(12);
-              expect(opportunitiesDicts.length).toBe(2);
+              const updatedAvailableQuestionSuggestions = Object.keys(
+                component.contributions
+              ).length;
+              const newlyFetchedQuestionSuggestions = opportunitiesDicts.length;
+              expect(updatedAvailableQuestionSuggestions).toBe(
+                totalOpportunitiesToBeFetched
+              );
+              expect(newlyFetchedQuestionSuggestions).toBe(
+                totalOpportunitiesToBeFetched - availableQuestionSuggestions
+              );
               expect(more).toBe(false);
             });
         });

@@ -731,8 +731,8 @@ export class ContributionsAndReview implements OnInit, OnDestroy {
 
     this.directiveSubscriptions.add(
       this.contributionOpportunitiesService.removeOpportunitiesEventEmitter.subscribe(
-        SuggestionIds => {
-          SuggestionIds.forEach(suggestionId => {
+        suggestionIds => {
+          suggestionIds.forEach(suggestionId => {
             delete this.contributions[suggestionId];
           });
         }
