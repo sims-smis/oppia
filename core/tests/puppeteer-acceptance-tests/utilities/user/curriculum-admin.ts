@@ -333,7 +333,6 @@ export class CurriculumAdmin extends BaseUser {
     await this.clickOn(answersInGroupAreCorrectToggle);
     await this.clickOn(openAnswerGroupFeedBackEditor);
     await this.type(richTextAreaField, 'Good job!');
-    await this.clickOn(saveOutcomeFeedbackButton);
     await this.clickOn(saveResponseButton);
     await this.page.waitForSelector(modalDiv, {hidden: true});
 
