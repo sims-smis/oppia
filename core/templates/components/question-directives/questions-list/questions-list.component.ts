@@ -178,6 +178,7 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
 
     this.skillLinkageModificationsArray = [];
     this.isSkillDifficultyChanged = false;
+    this.skillEditorRoutingService.creatingNewQuestion(true);
   }
 
   updateSkillWithDifficulty(event: SkillDifficulty, index: number): void {

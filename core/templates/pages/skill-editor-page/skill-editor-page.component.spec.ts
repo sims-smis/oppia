@@ -361,6 +361,84 @@ describe('Skill editor page', () => {
     expect(routingSpy).toHaveBeenCalled();
   });
 
+  it(
+    "should show 'confirm question modal exit' modal and navigate to " +
+      'main editor tab when user confirms',
+    fakeAsync(() => {
+      skillEditorRoutingService.questionIsBeingCreated = true;
+      let routingSpy = spyOn(skillEditorRoutingService, 'navigateToMainTab');
+      spyOn(ngbModal, 'open').and.callFake((dlg, opt) => {
+        return {
+          result: Promise.resolve('confirm'),
+        } as NgbModalRef;
+      });
+      component.selectMainTab();
+      tick();
+      expect(ngbModal.open).toHaveBeenCalled();
+      expect(routingSpy).toHaveBeenCalled();
+      skillEditorRoutingService.questionIsBeingCreated = false;
+    })
+  );
+
+  it(
+    "should show 'confirm question modal exit' modal and navigate to " +
+      'preview editor tab when user confirms',
+    fakeAsync(() => {
+      skillEditorRoutingService.questionIsBeingCreated = true;
+      let routingSpy = spyOn(skillEditorRoutingService, 'navigateToPreviewTab');
+      spyOn(ngbModal, 'open').and.callFake((dlg, opt) => {
+        return {
+          result: Promise.resolve('confirm'),
+        } as NgbModalRef;
+      });
+      component.selectPreviewTab();
+      tick();
+      expect(ngbModal.open).toHaveBeenCalled();
+      expect(routingSpy).toHaveBeenCalled();
+      skillEditorRoutingService.questionIsBeingCreated = false;
+    })
+  );
+
+  it(
+    "should show 'confirm question modal exit' modal and should not navigate to " +
+      'preview editor tab when user cancels',
+    fakeAsync(() => {
+      skillEditorRoutingService.questionIsBeingCreated = true;
+      spyOn(ngbModal, 'open').and.callFake((dlg, opt) => {
+        return {
+          result: Promise.reject(),
+        } as NgbModalRef;
+      });
+      component.selectPreviewTab();
+      tick();
+      spyOn(skillEditorRoutingService, 'getActiveTabName').and.returnValue(
+        'questions'
+      );
+      expect(component.getActiveTabName()).toBe('questions');
+      skillEditorRoutingService.questionIsBeingCreated = false;
+    })
+  );
+
+  it(
+    "should show 'confirm question modal exit' modal and should not navigate to " +
+      'main editor tab when user cancels',
+    fakeAsync(() => {
+      skillEditorRoutingService.questionIsBeingCreated = true;
+      spyOn(ngbModal, 'open').and.callFake((dlg, opt) => {
+        return {
+          result: Promise.reject(),
+        } as NgbModalRef;
+      });
+      component.selectMainTab();
+      tick();
+      spyOn(skillEditorRoutingService, 'getActiveTabName').and.returnValue(
+        'questions'
+      );
+      expect(component.getActiveTabName()).toBe('questions');
+      skillEditorRoutingService.questionIsBeingCreated = false;
+    })
+  );
+
   it('should return warnings count for the skill', () => {
     let BrowserTabsInfo = EntityEditorBrowserTabsInfo.create(
       'skill',

@@ -32,6 +32,7 @@ import {PreventPageUnloadEventService} from 'services/prevent-page-unload-event.
 import {SkillEditorRoutingService} from './services/skill-editor-routing.service';
 import {SkillEditorStalenessDetectionService} from './services/skill-editor-staleness-detection.service';
 import {SkillEditorStateService} from './services/skill-editor-state.service';
+import {ConfirmQuestionExitModalComponent} from 'components/question-directives/modal-templates/confirm-question-exit-modal.component';
 
 @Component({
   selector: 'oppia-skill-editor-page',
@@ -61,11 +62,47 @@ export class SkillEditorPageComponent implements OnInit {
   }
 
   selectMainTab(): void {
-    this.skillEditorRoutingService.navigateToMainTab();
+    if (this.skillEditorRoutingService.questionIsBeingCreated) {
+      const modalRef = this.ngbModal.open(ConfirmQuestionExitModalComponent, {
+        backdrop: 'static',
+        keyboard: false,
+      });
+      modalRef.result.then(
+        () => {
+          this.skillEditorRoutingService.navigateToMainTab();
+          this.skillEditorRoutingService.creatingNewQuestion(false);
+        },
+        () => {
+          // Note to developers:
+          // This callback is triggered when the Cancel button is clicked.
+          // No further action is needed.
+        }
+      );
+    } else {
+      this.skillEditorRoutingService.navigateToMainTab();
+    }
   }
 
   selectPreviewTab(): void {
-    this.skillEditorRoutingService.navigateToPreviewTab();
+    if (this.skillEditorRoutingService.questionIsBeingCreated) {
+      const modalRef = this.ngbModal.open(ConfirmQuestionExitModalComponent, {
+        backdrop: 'static',
+        keyboard: false,
+      });
+      modalRef.result.then(
+        () => {
+          this.skillEditorRoutingService.navigateToPreviewTab();
+          this.skillEditorRoutingService.creatingNewQuestion(false);
+        },
+        () => {
+          // Note to developers:
+          // This callback is triggered when the Cancel button is clicked.
+          // No further action is needed.
+        }
+      );
+    } else {
+      this.skillEditorRoutingService.navigateToPreviewTab();
+    }
   }
 
   selectQuestionsTab(): void {
@@ -109,18 +146,20 @@ export class SkillEditorPageComponent implements OnInit {
         skill.getId()
       );
 
-    if (
-      skillEditorBrowserTabsInfo.doesSomeTabHaveUnsavedChanges() &&
-      this.undoRedoService.getChangeCount() > 0
-    ) {
-      skillEditorBrowserTabsInfo.setSomeTabHasUnsavedChanges(false);
-    }
-    skillEditorBrowserTabsInfo.decrementNumberOfOpenedTabs();
+    if (skillEditorBrowserTabsInfo) {
+      if (
+        skillEditorBrowserTabsInfo.doesSomeTabHaveUnsavedChanges() &&
+        this.undoRedoService.getChangeCount() > 0
+      ) {
+        skillEditorBrowserTabsInfo.setSomeTabHasUnsavedChanges(false);
+      }
+      skillEditorBrowserTabsInfo.decrementNumberOfOpenedTabs();
 
-    this.localStorageService.updateEntityEditorBrowserTabsInfo(
-      skillEditorBrowserTabsInfo,
-      EntityEditorBrowserTabsInfoDomainConstants.OPENED_SKILL_EDITOR_BROWSER_TABS
-    );
+      this.localStorageService.updateEntityEditorBrowserTabsInfo(
+        skillEditorBrowserTabsInfo,
+        EntityEditorBrowserTabsInfoDomainConstants.OPENED_SKILL_EDITOR_BROWSER_TABS
+      );
+    }
   }
 
   createOrUpdateSkillEditorBrowserTabsInfo(): void {
@@ -169,9 +208,12 @@ export class SkillEditorPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.bottomNavbarStatusService.markBottomNavbarStatus(true);
-    this.preventPageUnloadEventService.addListener(
-      this.undoRedoService.getChangeCount.bind(this.undoRedoService)
-    );
+    this.preventPageUnloadEventService.addListener(() => {
+      return (
+        this.undoRedoService.getChangeCount() > 0 ||
+        this.skillEditorRoutingService.questionIsBeingCreated
+      );
+    });
     this.skillEditorStateService.loadSkill(this.urlService.getSkillIdFromUrl());
     this.skill = this.skillEditorStateService.getSkill();
     this.directiveSubscriptions.add(
